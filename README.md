@@ -1,7 +1,7 @@
 # AI Image Canvas
 <img width="1533" height="1026" alt="image" src="https://github.com/user-attachments/assets/6b9f7544-add1-4e10-acc2-86d03cb1aa01" />
 
-Codex plugin with an English-only MCP server for board-based visual workflows.
+Codex plugin with an MCP server for board-based visual workflows.
 
 ## What it's for
 
