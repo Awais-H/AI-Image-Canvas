@@ -1,4 +1,27 @@
 import type { BoardDrawingDocument } from '@ai-image-canvas/shared/drawing'
+import type { CanvasDocument, Shape } from '@ai-image-canvas/shared'
+
+type AnnotateInput = {
+  action?: 'create' | 'update' | 'delete' | 'list'
+  annotations?: Array<{
+    kind: 'text' | 'arrow' | 'mark'
+    text?: string
+    x: number
+    y: number
+    w?: number
+    h?: number
+    color?: string
+    arrowStart?: { x: number; y: number }
+    arrowEnd?: { x: number; y: number }
+  }>
+  shapeId?: string
+  shapeIds?: string[]
+  text?: string
+  bounds?: { x: number; y: number; w: number; h: number }
+  color?: string
+  role?: string
+  type?: string
+}
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const response = await fetch(path, {
@@ -25,4 +48,17 @@ export async function fetchDrawing() {
 
 export async function saveDrawing(document: BoardDrawingDocument) {
   return request<BoardDrawingDocument>('PUT', '/api/drawing', document)
+}
+
+export async function fetchCanvasState() {
+  return request<{ canvasId: string; storagePath: string; document: CanvasDocument }>('GET', '/api/canvas/state')
+}
+
+export async function annotateBoard(input: AnnotateInput) {
+  return request<
+    | { shapes: Shape[] }
+    | { shape: Shape }
+    | { deleted: string[] }
+    | Shape[]
+  >('POST', '/api/canvas/annotate', input)
 }

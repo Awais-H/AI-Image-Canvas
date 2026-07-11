@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { fetchDrawing, openBoard, saveDrawing } from '../api'
+import { fetchCanvasState, fetchDrawing, openBoard, saveDrawing } from '../api'
+import { isAnnotationShape, useAnnotationStore } from '../store/useAnnotationStore'
 import { useDrawingStore } from '../store/useDrawingStore'
 
 function boardIdFromLocation() {
@@ -26,9 +27,10 @@ export function useBoardBootstrap() {
         if (cancelled) return
         setCanvasId(opened.canvasId)
         setBoardInLocation(opened.canvasId)
-        const document = await fetchDrawing()
+        const [document, canvasState] = await Promise.all([fetchDrawing(), fetchCanvasState()])
         if (cancelled) return
         useDrawingStore.getState().hydrate(document)
+        useAnnotationStore.getState().hydrate(canvasState.document.shapes.filter(isAnnotationShape))
         setStatus('ready')
       } catch (err) {
         if (cancelled) return
