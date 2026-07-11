@@ -1,0 +1,7 @@
+dist/
+node_modules/
+.ai-image-canvas/
+.env
+*.log
+.DS_Store
+**/*.zh.md

@@ -1,0 +1,23 @@
+{
+  "name": "ai-image-canvas-codex-plugin",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Codex plugin with a production-grade AI Image Canvas MCP server.",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@10.13.1",
+  "scripts": {
+    "build": "pnpm -r --filter @ai-image-canvas/shared --filter @ai-image-canvas/board-ui --filter @ai-image-canvas/canvas-service --filter @ai-image-canvas/mcp-server build",
+    "setup": "node scripts/setup.mjs",
+    "typecheck": "pnpm --filter @ai-image-canvas/shared build && pnpm -r --filter @ai-image-canvas/canvas-service --filter @ai-image-canvas/mcp-server typecheck",
+    "test": "npx --yes pnpm@10.13.1 --filter @ai-image-canvas/mcp-server test",
+    "validate:plugin": "node scripts/validate-plugin.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "esbuild": "^0.28.1",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.0"
+  }
+}
