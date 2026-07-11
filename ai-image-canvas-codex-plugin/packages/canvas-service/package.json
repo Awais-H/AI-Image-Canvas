@@ -1,0 +1,20 @@
+{
+  "name": "@ai-image-canvas/canvas-service",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "pnpm --filter @ai-image-canvas/shared build && pnpm --filter @ai-image-canvas/board-ui build && esbuild src/index.ts --bundle --platform=node --format=cjs --target=node20 --outfile=dist/index.cjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@ai-image-canvas/shared": "workspace:*",
+    "express": "^4.21.0",
+    "nanoid": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21"
+  }
+}
