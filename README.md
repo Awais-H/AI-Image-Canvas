@@ -3,6 +3,8 @@
 
 Codex plugin with an MCP server for board-based visual workflows.
 
+Will be adding more task specific tools soon (i.e creating marketing material, youtube thumbnails)
+
 ## What it's for
 
 A visual board where you paste images, draw marks, and add text notes, then an AI agent generates or edits images based on what you put on the canvas. Built for iterative image work (posters, product shots, revisions from feedback) rather than one-shot prompts.
