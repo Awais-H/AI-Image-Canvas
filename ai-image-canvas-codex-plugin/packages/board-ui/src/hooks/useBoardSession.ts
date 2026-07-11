@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { fetchCanvasState, fetchDrawing, openBoard, saveDrawing } from '../api'
 import { isAnnotationShape, useAnnotationStore } from '../store/useAnnotationStore'
+import { isImageShape, useImageStore } from '../store/useImageStore'
 import { useDrawingStore } from '../store/useDrawingStore'
 
 function boardIdFromLocation() {
@@ -31,6 +32,7 @@ export function useBoardBootstrap() {
         if (cancelled) return
         useDrawingStore.getState().hydrate(document)
         useAnnotationStore.getState().hydrate(canvasState.document.shapes.filter(isAnnotationShape))
+        useImageStore.getState().hydrate(canvasState.document.shapes.filter(isImageShape))
         setStatus('ready')
       } catch (err) {
         if (cancelled) return

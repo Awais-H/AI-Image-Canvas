@@ -62,3 +62,32 @@ export async function annotateBoard(input: AnnotateInput) {
     | Shape[]
   >('POST', '/api/canvas/annotate', input)
 }
+
+export function assetUrl(relativePath: string) {
+  return `/api/canvas/asset?path=${encodeURIComponent(relativePath)}`
+}
+
+export async function importPastedImage(input: {
+  dataUrl: string
+  title?: string
+  x?: number
+  y?: number
+  w?: number
+  h?: number
+}) {
+  return request<Shape>('POST', '/api/canvas/import-paste', input)
+}
+
+export async function moveImageShape(input: {
+  shapeId: string
+  x: number
+  y: number
+  w?: number
+  h?: number
+}) {
+  return request<Shape>('POST', '/api/canvas/shapes/move', input)
+}
+
+export async function deleteImageShape(shapeId: string) {
+  return request<{ deleted: string }>('POST', '/api/canvas/shapes/delete', { shapeId })
+}
