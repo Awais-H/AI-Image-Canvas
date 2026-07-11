@@ -1,0 +1,24 @@
+{
+  "name": "ai-image-canvas-codex-plugin",
+  "version": "0.2.0",
+  "description": "AI Image Canvas MCP server for image workflows, annotation editing, and skill runs.",
+  "author": { "name": "Awais H" },
+  "license": "MIT",
+  "keywords": ["codex", "plugin", "mcp", "ai-image-canvas"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "AI Image Canvas",
+    "shortDescription": "Open a board, generate visuals, edit from marks, and run workflows via MCP.",
+    "longDescription": "AI Image Canvas exposes an English-only MCP surface: tools, resources, and prompts for board lifecycle, mark pipelines, task queues, and workflows.",
+    "developerName": "Awais H",
+    "category": "Productivity",
+    "capabilities": ["Interactive", "Write", "MCP", "Skills"],
+    "defaultPrompt": [
+      "Open the board and make a poster for my product.",
+      "Enable auto mark edit mode.",
+      "Revise the selected visual using my board marks.",
+      "AI Image Canvas continue mark edits."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

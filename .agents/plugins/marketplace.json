@@ -1,0 +1,20 @@
+{
+  "name": "ai-image-canvas",
+  "interface": {
+    "displayName": "AI Image Canvas"
+  },
+  "plugins": [
+    {
+      "name": "ai-image-canvas-codex-plugin",
+      "source": {
+        "source": "local",
+        "path": "./ai-image-canvas-codex-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
