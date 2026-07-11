@@ -1,0 +1,168 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  height: 100%;
+}
+
+body {
+  @apply bg-neutral-100 text-neutral-900 antialiased;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+button:focus-visible {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2 ring-offset-white;
+}
+
+.toolbar-icon-button {
+  @apply flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-neutral-300 bg-white transition;
+}
+
+.toolbar-icon-button.is-active {
+  @apply border-blue-500 bg-white ring-2 ring-blue-500/25;
+}
+
+.toolbar-icon-button.is-active img {
+  filter: none;
+}
+
+.toolbar-color-swatch {
+  @apply h-9 w-9 rounded-full border-2 border-transparent transition;
+}
+
+.toolbar-color-swatch.is-active {
+  @apply border-neutral-800;
+}
+
+.thickness-dot-button {
+  @apply flex h-9 w-9 items-center justify-center rounded-full border border-transparent transition;
+}
+
+.thickness-dot-button.is-active {
+  @apply border-blue-500 bg-blue-50;
+}
+
+.thickness-dot {
+  @apply rounded-full bg-neutral-900;
+}
+
+.eraser-menu-tab {
+  @apply flex items-center justify-between rounded-2xl border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50;
+}
+
+.eraser-menu-tab.is-active {
+  @apply border-blue-500 bg-blue-50 text-blue-700;
+}
+
+.thickness-chevron {
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.history-icon-button {
+  @apply flex h-11 w-11 items-center justify-center rounded-full border border-neutral-300 bg-white text-lg text-neutral-700 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-40;
+}
+
+.workspace-toolbar {
+  @apply relative gap-3 px-4 py-3;
+}
+
+.toolbar-shell {
+  @apply relative z-40;
+}
+
+.toolbar-popover {
+  @apply z-50;
+}
+
+.annotation-layer {
+  pointer-events: none;
+}
+
+.annotation-layer.is-text-tool {
+  pointer-events: auto;
+  cursor: text;
+}
+
+.annotation-text-label {
+  @apply pointer-events-auto absolute max-w-xs border-0 bg-transparent px-0 py-0 text-left text-sm font-medium shadow-none transition;
+  text-shadow:
+    0 0 6px rgba(255, 255, 255, 0.95),
+    0 0 12px rgba(255, 255, 255, 0.85);
+}
+
+.annotation-text-label:hover {
+  @apply text-neutral-700;
+}
+
+.annotation-mark {
+  @apply pointer-events-none absolute rounded-md border-2 border-dashed border-neutral-400/70 bg-transparent;
+}
+
+.annotation-editor {
+  @apply pointer-events-auto absolute z-50 min-w-[220px] rounded-lg border border-neutral-300 bg-white/95 p-2 shadow-md backdrop-blur-sm;
+}
+
+.annotation-editor-input {
+  @apply w-full resize-none rounded-md border border-neutral-200 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-blue-500;
+}
+
+.annotation-editor-actions {
+  @apply mt-2 flex flex-wrap gap-1;
+}
+
+.annotation-editor-button {
+  @apply rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50;
+}
+
+.annotation-editor-button.is-danger {
+  @apply border-red-200 text-red-700 hover:bg-red-50;
+}
+
+.canvas-image {
+  @apply rounded-md object-contain shadow-sm;
+}
+
+.image-interaction-target {
+  @apply pointer-events-auto absolute cursor-grab rounded-md border-2 border-transparent transition;
+}
+
+.image-interaction-target:hover {
+  @apply border-blue-300;
+}
+
+.image-interaction-target.is-selected {
+  @apply border-blue-500 ring-2 ring-blue-500/25;
+}
+
+.image-interaction-target.is-dragging,
+.image-interaction-target.is-resizing {
+  @apply cursor-grabbing border-blue-500 ring-2 ring-blue-500/25;
+}
+
+.image-resize-handle {
+  @apply pointer-events-auto absolute bottom-0 right-0 z-10 h-4 w-4 translate-x-1/2 translate-y-1/2 cursor-se-resize rounded-full border-2 border-white bg-blue-500 shadow-sm;
+}
+
+.image-holder {
+  @apply pointer-events-none absolute rounded-xl border-2 border-dashed border-neutral-300 bg-white/40;
+}
+
+.dotted-background {
+  background-color: #ffffff;
+  background-image: radial-gradient(circle, #9ca3af 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: 0 0;
+}
