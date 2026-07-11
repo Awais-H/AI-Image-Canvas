@@ -24,7 +24,7 @@ codex plugin marketplace add .
 codex plugin add ai-image-canvas-codex-plugin@ai-image-canvas
 ```
 
-Restart Codex. Then ask things like *"Open the board and make a poster"* or *"Revise the image from my marks."* The agent opens the board in your browser and uses the tools to read, edit, and place images.
+Restart Codex. Then select the plugin from the '+' icon.
 
 See `ai-image-canvas-codex-plugin/README.md` for the tool catalog.
 
