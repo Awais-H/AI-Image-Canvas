@@ -763,11 +763,14 @@ export class CanvasService {
     const jobs = await this.listJobs(false)
     const candidate = jobs.find((job) => {
       if (input.kind && job.kind !== input.kind) return false
-      if (job.status !== 'queued') return false
-      if (job.claimExpiresAt && Date.now() > Date.parse(job.claimExpiresAt) && job.status === 'processing') {
-        return true
-      }
-      return true
+      if (job.status === 'queued') return true
+      // A client that claimed a job and then died leaves it stuck in "processing";
+      // once the claim TTL has passed, hand it out again.
+      return (
+        job.status === 'processing' &&
+        Boolean(job.claimExpiresAt) &&
+        Date.now() > Date.parse(job.claimExpiresAt as string)
+      )
     })
     if (!candidate) return undefined
     if (input.claim) {
