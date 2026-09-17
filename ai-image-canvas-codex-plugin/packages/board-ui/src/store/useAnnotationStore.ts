@@ -7,8 +7,7 @@ export function isAnnotationShape(shape: Shape) {
     shape.role === 'annotation_arrow' ||
     shape.role === 'annotation_mark' ||
     shape.type === 'text' ||
-    shape.type === 'arrow' ||
-    (shape.type === 'geo' && shape.role === 'annotation_mark')
+    shape.type === 'arrow'
   )
 }
 

@@ -26,7 +26,7 @@ function clientRoot() {
   return path.join(baseDir, 'client')
 }
 
-export function createApp(service: CanvasService) {
+export function createApp(service: CanvasService): express.Express {
   const app = express()
   app.use(express.json({ limit: '25mb' }))
 
