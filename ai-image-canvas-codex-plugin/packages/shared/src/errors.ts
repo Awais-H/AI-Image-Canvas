@@ -11,6 +11,7 @@ export type CanvasErrorCode =
   | 'ANNOTATION_AMBIGUOUS'
   | 'TARGET_NOT_FOUND'
   | 'INVALID_ANNOTATION'
+  | 'INVALID_INPUT'
   | 'INTERNAL_ERROR'
 
 export interface CanvasErrorBody {

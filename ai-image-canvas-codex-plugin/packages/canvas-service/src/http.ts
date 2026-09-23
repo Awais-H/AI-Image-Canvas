@@ -30,20 +30,6 @@ export function createApp(service: CanvasService): express.Express {
   const app = express()
   app.use(express.json({ limit: '25mb' }))
 
-  app.use((error: unknown, _req: express.Request, res: express.Response, next: express.NextFunction) => {
-    if (res.headersSent) return next(error)
-    if (isCanvasError(error)) {
-      return res.status(400).json({ error: error.error })
-    }
-    return res.status(500).json({
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: error instanceof Error ? error.message : String(error),
-        retryable: false
-      }
-    })
-  })
-
   const wrap =
     (handler: (req: express.Request) => Promise<unknown>) =>
     async (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -122,7 +108,41 @@ export function createApp(service: CanvasService): express.Express {
     })
   }
 
+  // Error handlers only see errors from middleware registered before them, so this
+  // has to come last or route failures fall through to Express's HTML error page.
+  app.use((error: unknown, _req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (res.headersSent) return next(error)
+    if (isCanvasError(error)) {
+      return res.status(400).json({ error: error.error })
+    }
+    const status = clientErrorStatus(error)
+    if (status) {
+      // e.g. malformed JSON or an oversized body rejected by express.json()
+      return res.status(status).json({
+        error: {
+          code: 'INVALID_INPUT',
+          message: error instanceof Error ? error.message : 'Invalid request.',
+          retryable: false
+        }
+      })
+    }
+    return res.status(500).json({
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: error instanceof Error ? error.message : String(error),
+        retryable: false
+      }
+    })
+  })
+
   return app
+}
+
+function clientErrorStatus(error: unknown) {
+  if (!error || typeof error !== 'object') return undefined
+  const status = (error as { status?: unknown; statusCode?: unknown }).status ??
+    (error as { statusCode?: unknown }).statusCode
+  return typeof status === 'number' && status >= 400 && status < 500 ? status : undefined
 }
 
 export function startServer(service: CanvasService, port: number) {

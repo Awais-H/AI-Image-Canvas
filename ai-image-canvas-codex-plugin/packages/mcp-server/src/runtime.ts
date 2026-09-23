@@ -77,9 +77,17 @@ export async function api<T>(method: string, route: string, body?: unknown) {
     body: body ? JSON.stringify(body) : undefined
   })
   const text = await response.text()
-  const json = text ? JSON.parse(text) : {}
+  let json: any = {}
+  if (text) {
+    try {
+      json = JSON.parse(text)
+    } catch {
+      if (response.ok) throw new Error(`Unexpected non-JSON response from ${route}`)
+      json = undefined
+    }
+  }
   if (!response.ok) {
-    const message = json?.error?.message ?? text ?? response.statusText
+    const message = json?.error?.message || text || response.statusText || `HTTP ${response.status}`
     throw new Error(message)
   }
   return json as T
