@@ -323,12 +323,17 @@ export function registerTools(server: McpServer) {
           return api('GET', `/api/jobs?includeCompleted=${parsed.includeCompleted}`)
         }
         const deadline = Date.now() + parsed.waitMs
-        while (Date.now() < deadline) {
-          const job = await api('POST', '/api/jobs/next', { kind: parsed.kind, claim: parsed.claim })
-          if (job) return { job, timedOut: false }
-          await new Promise((resolve) => setTimeout(resolve, 500))
+        // Always poll at least once so waitMs: 0 works as a non-blocking check.
+        for (;;) {
+          const job = await api<{ id?: string } | null>('POST', '/api/jobs/next', {
+            kind: parsed.kind,
+            claim: parsed.claim
+          })
+          if (job?.id) return { job, timedOut: false }
+          const remaining = deadline - Date.now()
+          if (remaining <= 0) return { job: null, timedOut: true }
+          await new Promise((resolve) => setTimeout(resolve, Math.min(500, remaining)))
         }
-        return { job: undefined, timedOut: true }
       })
   )
 

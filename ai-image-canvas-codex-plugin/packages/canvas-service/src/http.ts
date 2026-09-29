@@ -80,7 +80,8 @@ export function createApp(service: CanvasService): express.Express {
 
   app.get('/api/jobs', wrap(async (req) => service.listJobs(req.query.includeCompleted === 'true')))
   app.post('/api/jobs', wrap(async (req) => service.enqueueJob(req.body.kind, req.body.payload ?? {})))
-  app.post('/api/jobs/next', wrap(async (req) => service.nextJob(req.body ?? {})))
+  // res.json(undefined) sends an empty body, which clients can't tell apart from `{}`.
+  app.post('/api/jobs/next', wrap(async (req) => (await service.nextJob(req.body ?? {})) ?? null))
   app.get('/api/jobs/:id', wrap(async (req) => service.getJob(req.params.id)))
   app.post('/api/jobs/:id', wrap(async (req) => service.updateJob(req.params.id, req.body)))
   app.post('/api/jobs/:id/cancel', wrap(async (req) => service.cancelJob(req.params.id)))
