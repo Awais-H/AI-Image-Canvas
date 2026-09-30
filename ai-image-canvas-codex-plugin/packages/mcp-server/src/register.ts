@@ -22,7 +22,12 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { z } from 'zod'
 import { api, ensureService } from './runtime.js'
-import { buildEditPromptFromPlan, buildGenerationPrompt, buildSkillPrompt } from './prompts.js'
+import {
+  buildEditPromptFromAnnotationList,
+  buildEditPromptFromPlan,
+  buildGenerationPrompt,
+  buildSkillPrompt
+} from './prompts.js'
 import { runTool } from './toolResult.js'
 
 async function openBoard(input: { workspaceRoot?: string; canvasId?: string; title?: string; port?: number }) {
@@ -480,10 +485,7 @@ export function registerPrompts(server: McpServer) {
           role: 'user',
           content: {
             type: 'text',
-            text: buildEditPromptFromPlan({ userRequest, resolvedPlan: [] }).replace(
-              /No reliable marks were detected[\s\S]*$/m,
-              annotationList
-            )
+            text: buildEditPromptFromAnnotationList({ userRequest, annotationList })
           }
         }
       ]

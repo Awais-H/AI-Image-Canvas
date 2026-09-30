@@ -19,17 +19,22 @@ export function buildGenerationPrompt(input: {
   })
 }
 
+const NO_MARKS_MESSAGE = 'No reliable marks were detected. Keep the source visual unchanged.'
+
+export function buildEditPromptFromAnnotationList(input: { userRequest?: string; annotationList?: string }) {
+  return renderPromptTemplate(PROMPT_TEMPLATES.editFromMarks, {
+    userRequest: input.userRequest ?? '',
+    annotationList: input.annotationList?.trim() || NO_MARKS_MESSAGE
+  })
+}
+
 export function buildEditPromptFromPlan(input: {
   userRequest?: string
   resolvedPlan: AnnotationInstruction[]
 }) {
-  const annotationList = input.resolvedPlan.length
-    ? input.resolvedPlan.map((item, index) => formatAnnotation(item, index)).join('\n')
-    : 'No reliable marks were detected. Keep the source visual unchanged.'
-
-  return renderPromptTemplate(PROMPT_TEMPLATES.editFromMarks, {
-    userRequest: input.userRequest ?? '',
-    annotationList
+  return buildEditPromptFromAnnotationList({
+    userRequest: input.userRequest,
+    annotationList: input.resolvedPlan.map((item, index) => formatAnnotation(item, index)).join('\n')
   })
 }
 
