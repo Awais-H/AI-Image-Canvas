@@ -55,4 +55,29 @@ describe('annotation pipeline', () => {
     expect(interpreted.readyToEdit).toBe(false)
     expect(interpreted.needsClarification.length).toBeGreaterThan(0)
   })
+
+  it('asks for a targetShapeId when several images are on the board', () => {
+    const document: CanvasDocument = {
+      ...baseDocument,
+      shapes: [
+        ...baseDocument.shapes,
+        {
+          id: 'img2',
+          type: 'image',
+          role: 'ai_image',
+          bounds: { x: 700, y: 100, w: 300, h: 300 },
+          assetPath: 'assets/images/b.png'
+        }
+      ],
+      selection: []
+    }
+    const plan = normalizeAnnotationsToPlan({ document, radius: 300 })
+    expect(plan.readyToEdit).toBe(false)
+    expect(plan.clarificationReasons).toEqual(['Multiple images on canvas; provide targetShapeId.'])
+  })
+
+  it('reports an unknown targetShapeId', () => {
+    const plan = normalizeAnnotationsToPlan({ document: baseDocument, targetShapeId: 'missing', radius: 300 })
+    expect(plan.clarificationReasons).toEqual(['Target shape not found: missing'])
+  })
 })

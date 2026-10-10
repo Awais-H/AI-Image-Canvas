@@ -149,6 +149,8 @@ export interface RawAnnotationsResult {
   targetImagePath?: string
   radius: number
   shapes: RawAnnotationShape[]
+  /** Why no target image could be resolved, when targetShapeId is unset. */
+  reason?: string
 }
 
 export interface InterpretPlanResult {

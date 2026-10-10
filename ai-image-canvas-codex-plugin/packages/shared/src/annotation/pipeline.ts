@@ -36,10 +36,11 @@ function isAnnotationShape(shape: Shape) {
 function chooseTarget(document: CanvasDocument, targetShapeId?: string) {
   const images = document.shapes.filter(isImage)
   if (targetShapeId) {
+    const target = document.shapes.find((shape) => shape.id === targetShapeId)
     return {
-      target: document.shapes.find((shape) => shape.id === targetShapeId),
+      target,
       images,
-      reason: undefined as string | undefined
+      reason: target ? undefined : `Target shape not found: ${targetShapeId}`
     }
   }
   const selected = document.selection
@@ -99,7 +100,7 @@ export function extractRawAnnotations(input: {
     targetImagePath: target?.assetPath,
     radius: input.radius,
     shapes,
-    ...(reason ? {} : {})
+    ...(reason ? { reason } : {})
   }
 }
 
@@ -128,7 +129,7 @@ export function normalizeAnnotationsToPlan(input: {
       annotationPlan: [],
       needsClarification: [],
       readyToEdit: false,
-      clarificationReasons: ['No target image resolved.']
+      clarificationReasons: [raw.reason ?? 'No target image resolved.']
     }
   }
 
