@@ -18,7 +18,7 @@ import {
   workflowRunSchema,
   type AnnotationInstruction
 } from '@ai-image-canvas/shared'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { z } from 'zod'
 import { api, ensureService } from './runtime.js'
@@ -57,6 +57,13 @@ function holderSize(aspectRatio: string, w?: number, h?: number) {
     return { w: base, h: Math.round((base * rh) / rw) }
   }
   return { w: 420, h: 588 }
+}
+
+const IMAGE_EXTENSIONS: Record<string, string> = {
+  'image/png': '.png',
+  'image/jpeg': '.jpg',
+  'image/webp': '.webp',
+  'image/gif': '.gif'
 }
 
 async function ensureBoardSession(input: { workspaceRoot?: string; canvasId?: string; port?: number }) {
@@ -239,22 +246,24 @@ export function registerTools(server: McpServer) {
             h: parsed.h
           })
         }
-        const state = await api<{ storagePath: string }>('GET', '/api/canvas/state')
+        const placement = { x: parsed.x, y: parsed.y, w: parsed.w, h: parsed.h }
         if (parsed.source === 'url') {
           if (!parsed.url) throw new Error('url is required for url import.')
-          const temp = path.join(state.storagePath, 'assets', 'images', `url_${Date.now()}.png`)
+          const state = await api<{ storagePath: string }>('GET', '/api/canvas/state')
           const response = await fetch(parsed.url)
           if (!response.ok) throw new Error(`Download failed: ${parsed.url}`)
-          await mkdir(path.dirname(temp), { recursive: true })
+          const ext = IMAGE_EXTENSIONS[response.headers.get('content-type')?.split(';')[0].trim() ?? ''] ?? '.png'
+          // import-file copies the image into assets/, so the download is only a staging file.
+          const temp = path.join(state.storagePath, `url_${Date.now()}${ext}`)
           await writeFile(temp, Buffer.from(await response.arrayBuffer()))
-          return api('POST', '/api/canvas/import-file', { sourcePath: temp, title: parsed.title })
+          try {
+            return await api('POST', '/api/canvas/import-file', { sourcePath: temp, title: parsed.title, ...placement })
+          } finally {
+            await rm(temp, { force: true })
+          }
         }
         if (!parsed.dataUrl) throw new Error('dataUrl is required for paste import.')
-        const temp = path.join(state.storagePath, 'assets', 'images', `clip_${Date.now()}.png`)
-        const base64 = parsed.dataUrl.slice(parsed.dataUrl.indexOf(',') + 1)
-        await mkdir(path.dirname(temp), { recursive: true })
-        await writeFile(temp, Buffer.from(base64, 'base64'))
-        return api('POST', '/api/canvas/import-file', { sourcePath: temp, title: parsed.title })
+        return api('POST', '/api/canvas/import-paste', { dataUrl: parsed.dataUrl, title: parsed.title, ...placement })
       })
   )
 
