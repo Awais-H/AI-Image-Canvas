@@ -620,6 +620,13 @@ export class CanvasService {
     return absolute
   }
 
+  // A retried fill/revise call with the same key should hand back the shape the
+  // first attempt placed instead of stacking another copy on the board.
+  private findByIdempotencyKey(document: CanvasDocument, key?: string) {
+    if (!key) return undefined
+    return document.shapes.find((shape) => shape.meta?.idempotencyKey === key)
+  }
+
   async insertImageIntoHolder(input: {
     holderShapeId: string
     imagePath: string
@@ -631,6 +638,8 @@ export class CanvasService {
     const document = await this.loadDocument(this.requireActive())
     const holder = document.shapes.find((shape) => shape.id === input.holderShapeId)
     if (!holder) throw canvasError('HOLDER_NOT_FOUND', `Holder not found: ${input.holderShapeId}`)
+    const existing = this.findByIdempotencyKey(document, input.idempotencyKey)
+    if (existing) return existing
     const dir = this.canvasDir(document.metadata.canvasId)
     const filename = `${nanoid(8)}${path.extname(absolute) || '.png'}`
     const assetPath = path.join('assets', 'images', filename)
@@ -642,7 +651,8 @@ export class CanvasService {
       label: input.title,
       bounds: { ...holder.bounds },
       assetPath,
-      aspectRatio: holder.aspectRatio
+      aspectRatio: holder.aspectRatio,
+      ...(input.idempotencyKey ? { meta: { idempotencyKey: input.idempotencyKey } } : {})
     }
     document.shapes.push(image)
     document.selection = [image.id]
@@ -663,6 +673,8 @@ export class CanvasService {
     const document = await this.loadDocument(this.requireActive())
     const source = document.shapes.find((shape) => shape.id === input.sourceShapeId)
     if (!source) throw canvasError('TARGET_NOT_FOUND', `Source shape not found: ${input.sourceShapeId}`)
+    const existing = this.findByIdempotencyKey(document, input.idempotencyKey)
+    if (existing) return existing
     const dir = this.canvasDir(document.metadata.canvasId)
     const filename = `${nanoid(8)}${path.extname(absolute) || '.png'}`
     const assetPath = path.join('assets', 'images', filename)
@@ -686,7 +698,8 @@ export class CanvasService {
       assetPath,
       version,
       parentShapeId: source.id,
-      resolvedPlanId: input.resolvedPlanId
+      resolvedPlanId: input.resolvedPlanId,
+      ...(input.idempotencyKey ? { meta: { idempotencyKey: input.idempotencyKey } } : {})
     }
     document.shapes.push(shape)
     document.selection = [shape.id]
