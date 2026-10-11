@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid'
 import {
   canvasError,
   compareVersionPlans,
+  createCustomSkillSchema,
   interpretAnnotationPlan,
   normalizeAnnotationsToPlan,
   type AnnotationPlanV1,
@@ -51,6 +52,13 @@ async function readJson<T>(filePath: string): Promise<T> {
 
 async function writeJson(filePath: string, value: unknown) {
   await writeFile(filePath, JSON.stringify(value, null, 2), 'utf8')
+}
+
+const skillPatchSchema = createCustomSkillSchema.omit({ id: true }).partial()
+
+function invalidInput(issues: Array<{ path: Array<string | number>; message: string }>) {
+  const message = issues.map((issue) => `${issue.path.join('.') || 'input'}: ${issue.message}`).join('; ')
+  return canvasError('INVALID_INPUT', message)
 }
 
 function holderSize(aspectRatio: string, w?: number, h?: number) {
@@ -925,17 +933,36 @@ export class CanvasService {
     return category ? all.filter((skill) => skill.category === category) : all
   }
 
-  async createSkill(skill: SkillDefinition) {
+  private skillFile(id: string) {
+    // The id becomes a filename, so keep it to the same charset the schema allows.
+    if (typeof id !== 'string' || !/^[a-z0-9-]+$/.test(id)) {
+      throw canvasError('INVALID_INPUT', `Invalid skill id: ${String(id)}`)
+    }
+    return path.join(this.skillsDir(), `${id}.json`)
+  }
+
+  async createSkill(input: unknown) {
+    const result = createCustomSkillSchema.safeParse(input ?? {})
+    if (!result.success) throw invalidInput(result.error.issues)
+    const parsed = result.data
+    const file = this.skillFile(parsed.id)
+    const existing = await this.listSkills()
+    if (existsSync(file) || existing.some((skill) => skill.id === parsed.id)) {
+      throw canvasError('STORAGE_WRITE_FAILED', `Skill already exists: ${parsed.id}`)
+    }
+    const now = new Date().toISOString()
+    const skill: SkillDefinition = { ...parsed, builtin: false, createdAt: now, updatedAt: now }
     await mkdir(this.skillsDir(), { recursive: true })
-    const file = path.join(this.skillsDir(), `${skill.id}.json`)
-    if (existsSync(file)) throw canvasError('STORAGE_WRITE_FAILED', `Skill already exists: ${skill.id}`)
     await writeJson(file, skill)
     return skill
   }
 
-  async updateSkill(id: string, patch: Partial<SkillDefinition>) {
-    const file = path.join(this.skillsDir(), `${id}.json`)
+  async updateSkill(id: string, input: unknown) {
+    const file = this.skillFile(id)
     if (!existsSync(file)) throw canvasError('REQUEST_NOT_FOUND', `Skill not found: ${id}`)
+    const result = skillPatchSchema.safeParse(input ?? {})
+    if (!result.success) throw invalidInput(result.error.issues)
+    const patch = result.data
     const current = await readJson<SkillDefinition>(file)
     const next = { ...current, ...patch, id, updatedAt: new Date().toISOString() }
     await writeJson(file, next)
@@ -943,7 +970,7 @@ export class CanvasService {
   }
 
   async deleteSkill(id: string) {
-    const file = path.join(this.skillsDir(), `${id}.json`)
+    const file = this.skillFile(id)
     if (!existsSync(file)) throw canvasError('REQUEST_NOT_FOUND', `Skill not found: ${id}`)
     await rm(file)
     return { deleted: id }
