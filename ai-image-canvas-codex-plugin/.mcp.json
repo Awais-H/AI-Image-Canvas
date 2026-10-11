@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "ai-image-canvas": {
-      "command": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "command": "node",
       "args": ["packages/mcp-server/dist/index.js"],
       "cwd": ".",
       "env": {

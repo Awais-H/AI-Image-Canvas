@@ -19,6 +19,11 @@ const marketplace = readJson('.agents/plugins/marketplace.json', repoRoot)
 
 if (manifest && !manifest.interface?.displayName) failures.push('plugin displayName missing')
 if (mcp && !mcp.mcpServers?.['ai-image-canvas']) failures.push('ai-image-canvas MCP entry missing')
+const mcpCommand = mcp?.mcpServers?.['ai-image-canvas']?.command
+if (typeof mcpCommand === 'string' && path.isAbsolute(mcpCommand)) {
+  // An absolute interpreter path only exists on the machine it was copied from.
+  failures.push(`.mcp.json command should be resolved from PATH, not ${mcpCommand}`)
+}
 if (marketplace) {
   const entry = marketplace.plugins?.find((p) => p.name === 'ai-image-canvas-codex-plugin')
   if (!entry) failures.push('marketplace plugin entry missing')
