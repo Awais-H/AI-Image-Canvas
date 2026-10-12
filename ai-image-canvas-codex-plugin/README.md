@@ -9,20 +9,26 @@ Fresh MCP server implementation built to the AI Image Canvas design spec. Englis
 | `@ai-image-canvas/shared` | Types, Zod schemas, annotation pipeline, prompt templates |
 | `@ai-image-canvas/canvas-service` | Local HTTP API + file storage on `127.0.0.1` |
 | `@ai-image-canvas/mcp-server` | MCP tools, resources, prompts |
+| `@ai-image-canvas/board-ui` | Browser board (React), built into and served by canvas-service |
 
 ## MCP surface
 
-### Tools (prefix conventions)
+### Tools
 
-| Prefix | Domain |
-|--------|--------|
-| `board_*` | Board lifecycle, document, layout, export |
-| `visual_*` | Image slots, rendering, revisions, imports |
-| `mark_*` | Mark extraction, plan validation, edit briefs |
-| `task_*` | Unified job queue |
-| `workflow_*` | Workflow catalog and runs |
-| `library_*` | Media library |
-| `service_health` | Runtime health |
+| Tool | What it does |
+|------|--------------|
+| `board_open` | Open, list, or close boards; `action: "health"` checks the local service |
+| `board_read` | Document, summary, selection, and shape queries |
+| `board_save` | Force-persist the current board |
+| `board_annotate` | Create, update, delete, or list text notes, arrows, and region marks |
+| `visual_plan` | Create or regenerate an image holder and get a generation prompt |
+| `visual_fill` | Place a local image into a holder |
+| `visual_import` | Import an image from a file, URL, or clipboard data URL |
+| `visual_revise` | Add an edited image as a new version of a source visual |
+| `mark_prepare_edit` | Run the mark pipeline and return the plan plus an edit prompt |
+| `task_watch` / `task_manage` | Poll, inspect, update, cancel, or complete queued jobs |
+| `workflow_run` | List, plan, enqueue, or fetch workflow runs |
+| `library_manage` | List, tag, or delete media library assets |
 
 ### Resources
 
@@ -37,7 +43,8 @@ Fresh MCP server implementation built to the AI Image Canvas design spec. Englis
 - `brief_edit_from_marks`
 - `brief_workflow_run`
 
-Templates live in `prompts/*.md` (English only).
+Templates are embedded in `packages/mcp-server/src/promptTemplates.ts` (English only).
+`prompts/*.md` are readable copies of the same text; update both together.
 
 ## Setup
 
