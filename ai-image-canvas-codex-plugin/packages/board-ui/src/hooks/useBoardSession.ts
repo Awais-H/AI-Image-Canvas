@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import type { BoardDrawingDocument } from '@ai-image-canvas/shared/drawing'
 import { fetchCanvasState, fetchDrawing, openBoard, saveDrawing } from '../api'
 import { isAnnotationShape, useAnnotationStore } from '../store/useAnnotationStore'
 import { isImageShape, useImageStore } from '../store/useImageStore'
@@ -48,6 +49,12 @@ export function useBoardBootstrap() {
   return { status, error, canvasId }
 }
 
+// toDocument() stamps a fresh updatedAt every call, so leave it out when
+// checking whether anything worth saving actually changed.
+function drawingSnapshot(document: BoardDrawingDocument) {
+  return JSON.stringify({ drawing: document.drawing, preferences: document.preferences })
+}
+
 export function useDrawingPersistence(enabled: boolean) {
   const saveTimer = useRef<number | null>(null)
   const lastSerialized = useRef('')
@@ -55,7 +62,7 @@ export function useDrawingPersistence(enabled: boolean) {
   useEffect(() => {
     if (!enabled) return
 
-    lastSerialized.current = JSON.stringify(useDrawingStore.getState().toDocument())
+    lastSerialized.current = drawingSnapshot(useDrawingStore.getState().toDocument())
 
     const scheduleSave = () => {
       if (saveTimer.current) {
@@ -63,13 +70,13 @@ export function useDrawingPersistence(enabled: boolean) {
       }
       saveTimer.current = window.setTimeout(async () => {
         const document = useDrawingStore.getState().toDocument()
-        const serialized = JSON.stringify(document)
+        const serialized = drawingSnapshot(document)
         if (serialized === lastSerialized.current) {
           return
         }
         try {
-          const saved = await saveDrawing(document)
-          lastSerialized.current = JSON.stringify(saved)
+          await saveDrawing(document)
+          lastSerialized.current = serialized
         } catch (err) {
           console.error('[board-ui] failed to save drawing', err)
         }
